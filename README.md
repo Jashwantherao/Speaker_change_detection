@@ -3,7 +3,7 @@
 - To use same conda environment.
 ``` sh
     conda create --name bilstm_change_detection --file spec-file.txt
-    source activate bilstm
+    source activate bilstm_change_detection
 ```
 
  ``` sh
