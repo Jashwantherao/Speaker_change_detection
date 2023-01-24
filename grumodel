@@ -1,0 +1,50 @@
+# Import necessary libraries
+from keras.layers import Input, Conv1D, MaxPooling1D, Flatten, Dense, Dropout, GRU
+from keras.optimizers import Adam
+from keras.callbacks import LearningRateScheduler
+from keras.models import Model
+
+# Define input shape and batch size
+frame_shape = (None, num_features)
+batch_size = 32
+
+# Create input layer
+input_frame = Input(frame_shape, name='main_input')
+
+# Add 1D convolutional layers with max pooling
+conv1 = Conv1D(filters=32, kernel_size=3, activation='relu')(input_frame)
+max_pool1 = MaxPooling1D(pool_size=2)(conv1)
+conv2 = Conv1D(filters=64, kernel_size=3, activation='relu')(max_pool1)
+max_pool2 = MaxPooling1D(pool_size=2)(conv2)
+conv3 = Conv1D(filters=128, kernel_size=3, activation='relu')(max_pool2)
+max_pool3 = MaxPooling1D(pool_size=2)(conv3)
+
+# Flatten and add fully connected layers
+flatten = Flatten()(max_pool3)
+fc1 = Dense(64, activation='relu')(flatten)
+dropout1 = Dropout(0.5)(fc1)
+fc2 = Dense(32, activation='relu')(dropout1)
+dropout2 = Dropout(0.5)(fc2)
+
+# Add GRU layer
+gru = GRU(32, return_sequences=True, dropout=0.2, recurrent_dropout=0.2)(dropout2)
+
+# Add final output layer
+output = Dense(1, activation='sigmoid')(gru)
+
+# Create model and compile
+model = Model(input_frame, output)
+model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
+
+# Define learning rate schedule
+def scheduler(epoch):
+    if epoch < 10:
+        return 0.001
+    else:
+        return 0.001 * tf.math.exp(0.1 * (10 - epoch))
+
+# Create learning rate scheduler
+lr_scheduler = LearningRateScheduler(scheduler)
+
+# Train model
+model.fit(X_train, y_train, batch_size=batch_size, epochs=30, callbacks=[lr_scheduler])
