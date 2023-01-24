@@ -1,0 +1,28 @@
+import librosa
+import numpy as np
+
+# Define the number of features per frame
+num_features = 35
+
+# Initialize lists to store audio data and labels
+X_train = []
+y_train = []
+
+# Loop through the audio files and labels
+for audio_file, label_file in zip(audio_files, label_files):
+    # Load the audio file
+    audio, sr = librosa.load(audio_file)
+
+    # Extract MFCCs from the audio
+    mfccs = librosa.feature.mfcc(audio, sr=sr, n_mfcc=num_features)
+
+    # Load the labels
+    labels = np.load(label_file)
+
+    # Append the MFCCs and labels to the list
+    X_train.append(mfccs)
+    y_train.append(labels)
+
+# Convert the lists to numpy arrays
+X_train = np.array(X_train)
+y_train = np.array(y_train)
